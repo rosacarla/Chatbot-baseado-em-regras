@@ -10,7 +10,9 @@ Original file is located at
 > CURSO: Tecnólogo em Inteligência Artificial Aplicada  
 > DISCIPLINA: Agentes Conversacionais  
 > AUTOR: Carla Edila Silveira  
-> OBJETIVO: construir um chatbot com emprego de técnicas mais simples de desenvolvimento
+> OBJETIVO: construir um chatbot com emprego de técnicas mais simples de desenvolvimento  
+> MELHORIA: inclusão das intenções de 'endereço', 'delivery' e 'reserva' na base de dados do restaurante  
+> DATA: 04/09/2023
 _______________________________________________________________________
 
 <img src="https://i.postimg.cc/SxmKc3q0/o-que-e-chatbot.jpg">
@@ -46,11 +48,11 @@ _______________________________________________________________________
 
 import re
 import nltk
-nltk.download('omw-1.4')
+nltk.download('omw-1.4') # Necessario download de omw-1.4 por erro na execucao
 from nltk.corpus import wordnet
 # Necessario download do wordnet
 nltk.download('wordnet')
-# se usar Open Multilingual Wordnet
+# Se usar Open Multilingual Wordnet
 nltk.download('omw')
 
 """> ## 6. Construção da lista de palavras-chave
@@ -58,8 +60,8 @@ nltk.download('omw')
 > <p align="justify">Para fins didáticos, a tentativa será automatizar a busca a partir de único termo, com uso de sinônimos encontrados no WordNet.</p>
 """
 
-# Lista de palavras
-palavras=['olá', 'oi', 'bom dia', 'boa tarde', 'boa noite', 'horário', 'cardapio', 'pedido']
+# Lista de palavras com a grafia usual
+palavras=['olá', 'oi', 'bom dia', 'boa tarde', 'boa noite', 'horário', 'endereço','cardápio', 'pedido', 'delivery', 'reserva']
 # Dicionarios de sinonimos
 lista_sinonimos={}
 
@@ -88,9 +90,26 @@ lista_sinonimos['olá'].add('boa tarde')
 lista_sinonimos['olá'].add('boa noite')
 lista_sinonimos['olá'].add('tudo bem')
 lista_sinonimos['olá'].add('como vai')
-lista_sinonimos['pedido'].add('solicitar')
-lista_sinonimos['pedido'].add('pedir')
-lista_sinonimos['pedido'].add('comida')
+lista_sinonimos['endereço'].add('rua')
+lista_sinonimos['endereço'].add('localização')
+lista_sinonimos['endereço'].add('logradouro')
+lista_sinonimos['endereço'].add('domicílio')
+lista_sinonimos['endereço'].add('destino')
+lista_sinonimos['endereço'].add('direção')
+lista_sinonimos['cardápio'].add('pratos')
+lista_sinonimos['delivery'].add('entregas')
+lista_sinonimos['delivery'].add('entrega em domicílio')
+lista_sinonimos['delivery'].add('entrega em casa')
+lista_sinonimos['delivery'].add('leva-e-traz')
+lista_sinonimos['delivery'].add('transportar')
+lista_sinonimos['reserva'].add('agendamento')
+lista_sinonimos['reserva'].add('marcar hora')
+lista_sinonimos['reserva'].add('combinar hora')
+lista_sinonimos['reserva'].add('reservação')
+lista_sinonimos['pedido'].add('pedir comida')
+lista_sinonimos['pedido'].add('comanda')
+lista_sinonimos['pedido'].add('fazer pedido')
+lista_sinonimos['pedido'].add('encomenda')
 
 print(lista_sinonimos)
 
@@ -114,11 +133,35 @@ keywords['horario_atendimento']=[]
 for sin in list(lista_sinonimos['horário']):
   keywords['horario_atendimento'].append('.*\\b'+sin+'\\b.*')
 
+# Cria novo registro de intencao para endereço
+keywords['endereco']=[]
+# Popula a entrada criada com lista de sinonimos da palavra-chave "endereço" e formata com metacaracteres do regex
+for sin in list(lista_sinonimos['endereço']):
+  keywords['endereco'].append('.*\\b'+sin+'\\b.*')
+
+# Cria novo registro de intencao para cardapio
+keywords['cardapio']=[]
+# Popula a entrada criada com lista de sinonimos da palavra-chave "cardápio" e formata com metacaracteres do regex
+for sin in list(lista_sinonimos['cardápio']):
+  keywords['cardapio'].append('.*\\b'+sin+'\\b.*')
+
 # Cria novo registro de intencao para pedido
 keywords['pedido']=[]
 # Popula a entrada criada com lista de sinonimos da palavra-chave "pedido" e formata com metacaracteres do regex
 for sin in list(lista_sinonimos['pedido']):
   keywords['pedido'].append('.*\\b'+sin+'\\b.*')
+
+# Cria novo registro de intencao para delivery
+keywords['delivery']=[]
+# Popula a entrada criada com lista de sinonimos da palavra-chave "delivery" e formata com metacaracteres do regex
+for sin in list(lista_sinonimos['delivery']):
+  keywords['delivery'].append('.*\\b'+sin+'\\b.*')
+
+# Cria novo registro de intencao para reseva
+keywords['reserva']=[]
+# Popula a entrada criada com lista de sinonimos da palavra-chave "reserva" e formata com metacaracteres do regex
+for sin in list(lista_sinonimos['reserva']):
+  keywords['reserva'].append('.*\\b'+sin+'\\b.*')
 
 for intent, keys in keywords.items():
   # Une todas palavras-chave sinonimas com o operador OU
@@ -135,11 +178,20 @@ print(keywords_dict)
 > Deve-se definir as respostas para cada intenção padrão, que será acionada quando não se encontra nenhuma palavra-chave na entrada do usuário.
 """
 
-# Define o dicionário que associa as intenções as respostas
+# Define o dicionário que associa as intenções as respostas - total de 8 intencoes apos melhoria
 respostas={
     'saudacao':'Olá. Como posso ajudá-lo?',
-    'horario_atendimento':'Nosso horário de funcionamento é a partir das 11h30 até às 15h00.',
+    'horario_atendimento':'Nosso horário de funcionamento é a partir das 11h30 até 15h00.',
+    'endereco':'Nosso endereço é Avenida Ronald do Brasil 1888, bairro Havaí.',
+    'endereco':'Nosso endereço está no bairro Havaí, na Avenida Ronald do Brasil 1888.',
+    'cardapio':'Veja nosso cardápio com pratos da culinária americana.',
+    'cardapio':'Fique à vontade para escolher um prato do nosso cardápio.',
     'pedido':'Qual será o seu pedido?',
+    'pedido':'Qual será a entrada do seu pedido?',
+    'delivery':'O restaurante faz entregas na vizinhança localizada no raio de 15 km.',
+    'delivery':'Nosso restaurante faz entregas na vizinhança dentro do raio de 15 km.',
+    'reserva':'Recomendamos sempre fazer reserva para os finais de semana.',
+    'reserva':'Para os finais de semana é recomendado sempre fazer reserva.',
     'padrao':'Me desculpe, mas não entendi o que você disse. Você poderia reformular?',
 }
 
@@ -180,9 +232,11 @@ while (True):
     # Chatbot imprime a resposta correspondente
     print (respostas[key])
 
+    # LEMBRETE DE INTENCOES PARA TESTE:['boa noite','horário','endereço','cardápio','pedido','delivery','reserva']
+
 """>## 10. O que fazer para melhorar o projeto?
 >A abordagem e a arquitetura de chatbot são mais simplificadas, dependentes do tamanho e cobertura da base de dados para funcionar. Para posterior melhoria do projeto, recomendam-se estas opções:</p>
->*  Incluir mais intenções na base de dados relacionadas a um restaurante (endereço, cardápio, delivery, reservas)  
+>*  Incluir mais intenções na base de dados relacionadas a um restaurante (endereço, cardápio, delivery, reservas) - OK!
 >*  Criar regra específica para reserva de mesas no restaurante em que as reservas são salvas em dicionário e, com uso de regex, para obter parâmetros de data, horário e quantidade de pessoas no meio do texto   
 >*  Resolver a intenção de horário de atendimento para possibilidade de restaurante abrir no almoço e jantar
 
