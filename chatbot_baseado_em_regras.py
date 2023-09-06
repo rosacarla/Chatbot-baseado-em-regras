@@ -12,6 +12,7 @@ Original file is located at
 > AUTOR: Carla Edila Silveira  
 > OBJETIVO: construir um chatbot com emprego de técnicas mais simples de desenvolvimento  
 > MELHORIA: inclusão das intenções de 'endereço', 'delivery' e 'reserva' na base de dados do restaurante  
+> GITHUB: https://github.com/rosacarla/Chatbot-baseado-em-regras  
 > DATA: 04/09/2023
 _______________________________________________________________________
 
